@@ -23,6 +23,7 @@ func Routes() {
 
 func main() {
 	Routes()
+	port := ":9000"
 	fmt.Println("Server running on port 8000")
-	http.ListenAndServe(":9000", nil)
+	http.ListenAndServe(port, nil)
 }

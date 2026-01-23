@@ -17,8 +17,8 @@ func Routes() {
 	http.HandleFunc("/api/products/{id}", handlers.ProductById)
 
 	// Category routes
-	// http.HandleFunc("/api/categories", handlers.Categories)
-	// http.HandleFunc("/api/categories/{id}", handlers.CategoriesById)
+	http.HandleFunc("/api/categories", handlers.Categories)
+	http.HandleFunc("/api/categories/{id}", handlers.CategoriesById)
 }
 
 func main() {

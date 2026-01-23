@@ -1,37 +1,28 @@
 package main
 
 import (
-	"encoding/json"
+	"fmt"
+	"kasir/handlers"
 	"net/http"
 )
 
-type Produk struct {
-	ID    int    `json:"id"`
-	Nama  string `json:"nama"`
-	Harga int    `json:"harga"`
-	Stok  int    `json:"stok"`
-}
+func Routes() {
+	// health
+	http.HandleFunc("/health", handlers.GetHealthStatus)
 
-var produk = []Produk{
-	{ID: 1, Nama: "Indomie Godog", Harga: 3500, Stok: 10},
-	{ID: 2, Nama: "Vit 1000ml", Harga: 3000, Stok: 40},
-	{ID: 3, Nama: "kecap", Harga: 12000, Stok: 20},
+	// Product
+	// get all dan post
+	http.HandleFunc("/api/products", handlers.Products)
+	// endpoint untuk delete, update, get by id
+	http.HandleFunc("/api/products/{id}", handlers.ProductById)
+
+	// Category routes
+	// http.HandleFunc("/api/categories", handlers.Categories)
+	// http.HandleFunc("/api/categories/{id}", handlers.CategoriesById)
 }
 
 func main() {
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"status":  "ok",
-			"message": "API is running",
-		})
-	})
-
-	// get produk
-	http.HandleFunc("/api/produk", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(produk)
-	})
-
-	http.ListenAndServe(":8080", nil)
+	Routes()
+	fmt.Println("Server running on port 8000")
+	http.ListenAndServe(":9000", nil)
 }

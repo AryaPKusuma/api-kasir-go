@@ -2,28 +2,69 @@ package main
 
 import (
 	"fmt"
+	"kasir/database"
 	"kasir/handlers"
+	"kasir/repositories"
+	"kasir/services"
 	"net/http"
+	"os"
+	"strings"
+
+	"github.com/spf13/viper"
 )
 
-func Routes() {
-	// health
-	http.HandleFunc("/health", handlers.GetHealthStatus)
-
-	// Product
-	// get all dan post
-	http.HandleFunc("/api/products", handlers.Products)
-	// endpoint untuk delete, update, get by id
-	http.HandleFunc("/api/products/{id}", handlers.ProductById)
-
-	// Category routes
-	http.HandleFunc("/api/categories", handlers.Categories)
-	http.HandleFunc("/api/categories/{id}", handlers.CategoriesById)
+type Config struct {
+	Port   string `mapstructure:"PORT"`
+	DBConn string `mapstructure:"DB_CONN"`
 }
 
 func main() {
-	Routes()
-	port := ":9000"
-	fmt.Println("Server running on port 8000")
-	http.ListenAndServe(port, nil)
+
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	if _, err := os.Stat(".env"); err == nil {
+		viper.SetConfigFile(".env")
+		_ = viper.ReadInConfig()
+	}
+
+	config := Config{
+		Port:   viper.GetString("PORT"),
+		DBConn: viper.GetString("DB_CONN"),
+	}
+
+	fmt.Printf("Attempting to connect to database with connection string: %s\n", config.DBConn)
+
+	db, err := database.InitDB(config.DBConn)
+	if err != nil {
+		fmt.Printf("Failed to connect to database: %v\n", err)
+		return
+	}
+	defer db.Close()
+
+	// Product setup
+	productRepository := repositories.NewProductRepository(db)
+	productService := services.NewProductService(productRepository)
+	productHandler := handlers.NewProductHandler(productService)
+
+	// Category setup
+	categoryRepository := repositories.NewCategoryRepository(db)
+	categoryService := services.NewCategoryService(categoryRepository)
+	categoryHandler := handlers.NewCategoryHandler(categoryService)
+
+	// Register routes
+	http.HandleFunc("/health", handlers.GetHealthStatus)
+
+	// Category routes
+	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
+	http.HandleFunc("/api/categories/", categoryHandler.HandleCategoryByID)
+
+	// Product routes
+	http.HandleFunc("/api/produk", productHandler.HandleProducts)
+	http.HandleFunc("/api/produk/", productHandler.HandleProductByID)
+
+	addr := ":" + config.Port
+
+	fmt.Printf("Server running on port %s\n", config.Port)
+	http.ListenAndServe(addr, nil)
 }

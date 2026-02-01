@@ -4,7 +4,6 @@ go 1.25.5
 
 require (
 	github.com/jackc/pgx/v5 v5.8.0
-	github.com/lib/pq v1.11.1
 	github.com/spf13/viper v1.21.0
 )
 

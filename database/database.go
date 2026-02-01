@@ -6,14 +6,12 @@ import (
 	"log"
 	"time"
 
-	_ "github.com/lib/pq"
-	// Using pgx driver for better PostgreSQL compatibility
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func InitDB(connectionString string) (*sql.DB, error) {
-	// Use pgx driver instead of postgres for better compatibility
-	db, err := sql.Open("pgx", connectionString)
+
+	db, err := sql.Open("pgx", connectionString+"?prefer_simple_protocol=true")
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}

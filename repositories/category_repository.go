@@ -25,7 +25,8 @@ func (repo *CategoryRepository) GetAll() ([]models.Category, error) {
 	categories := make([]models.Category, 0)
 	for rows.Next() {
 		var c models.Category
-		err := rows.Scan(&c.ID, &c.Name, &c.Description)
+		var categoryDesc sql.NullString
+		err := rows.Scan(&c.ID, &c.Name, &categoryDesc)
 		if err != nil {
 			return nil, err
 		}

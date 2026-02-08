@@ -52,8 +52,19 @@ func main() {
 	categoryService := services.NewCategoryService(categoryRepository)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 
+	// Transaction setup
+	transactionRepository := repositories.NewTransactionRepository(db)
+	transactionService := services.NewTransactionService(transactionRepository)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
+
 	// Register routes
 	http.HandleFunc("/health", handlers.GetHealthStatus)
+
+	// Transaction routes
+	http.HandleFunc("/api/transactions/checkout", transactionHandler.HandleCheckout)
+
+	// Transaction report
+	http.HandleFunc("/api/report", transactionHandler.Summary)
 
 	// Category routes
 	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)

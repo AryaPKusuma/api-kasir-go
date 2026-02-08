@@ -31,7 +31,8 @@ func (h *ProductHandler) HandleProducts(w http.ResponseWriter, r *http.Request) 
 
 // get all products without category
 func (h *ProductHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	products, err := h.service.GetAll()
+	name := r.URL.Query().Get("name")
+	products, err := h.service.GetAll(name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -139,5 +140,3 @@ func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		"message": "Product deleted successfully",
 	})
 }
-
-// detail product with category info
